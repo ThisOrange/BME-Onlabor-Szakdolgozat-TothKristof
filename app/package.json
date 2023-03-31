@@ -6,9 +6,11 @@
     "start": "next start"
   },
   "dependencies": {
+    "@react-google-maps/api": "^2.18.1",
     "next": "latest",
     "react": "18.2.0",
-    "react-dom": "18.2.0"
+    "react-dom": "18.2.0",
+    "react-hook-form": "^7.43.9"
   },
   "devDependencies": {
     "@types/node": "18.11.3",
