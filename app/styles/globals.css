@@ -7,3 +7,23 @@ html {
     height: 100%;
     background-color: #5988A1;
   }
+
+  .places-container{
+    position: absolute;
+    top:100px;
+    left:50%;
+    transform: translateX(-50%);
+    z-index:10;
+    width:300px;
+  }
+
+  .map-Style{
+    width: 100%;
+    height: 93vh;
+  }
+
+
+  .combobox-input{
+    width:100%;
+    padding:0.5rem;
+  }
