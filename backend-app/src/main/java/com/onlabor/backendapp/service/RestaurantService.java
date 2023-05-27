@@ -1,31 +1,44 @@
 package com.onlabor.backendapp.service;
 
 import com.onlabor.backendapp.model.Restaurant;
+import com.onlabor.backendapp.repository.RestaurantRepository;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
 @Service
 public class RestaurantService {
+    @Autowired
+    private RestaurantRepository restaurantRepository;
+
     private List<Restaurant> restaurantList;
 
-    public RestaurantService(){restaurantList=new ArrayList<>();}
 
-    public Optional<Restaurant> getRestaurant(Integer id) {
-        Optional optional=Optional.empty();
-        for(Restaurant restaurant:restaurantList){
-            if(id==restaurant.getId()){
-                optional=Optional.of(restaurant);
-                return optional;
-            }
-        }
-        return optional;
+    public List<Restaurant> getAllRestaurants() {
+        return restaurantRepository.findAll();
     }
 
-    public void addRestaurant(Restaurant restaurant){
-        restaurant.setId(restaurantList.size()+1);
-        restaurantList.add(restaurant);
+    public Restaurant saveRestaurant(Restaurant restaurant){
+        return restaurantRepository.save(restaurant);
+    }
+
+    public Restaurant getRestaurant(Long id){
+        return restaurantRepository.findById(id).orElse(null);
+    }
+
+    public Restaurant updateRestaurant(Long id, Restaurant restaurant) {
+        Restaurant existing = getRestaurant(id);
+        if(restaurant.getLocation()!=null)existing.setLocation(restaurant.getLocation());
+        if(restaurant.getLocationName()!=null)existing.setLocationName(restaurant.getLocationName());
+        if(restaurant.getName()!=null)existing.setName(restaurant.getName());
+        if(restaurant.getMenu()!=null)existing.setMenu(restaurant.getMenu());
+        if(restaurant.getAllergen()!=null)existing.setAllergen(restaurant.getAllergen());
+        return restaurantRepository.save(existing);
+    }
+
+    public void deleteRestaurant(Long id){
+        if(restaurantRepository.findById(id).orElse(null)!=null)
+        restaurantRepository.deleteById(id);
     }
 }

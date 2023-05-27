@@ -5,26 +5,32 @@ import com.onlabor.backendapp.service.RestaurantService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.Optional;
+import java.util.List;
 
 @RestController
+@RequestMapping("/restaurants")
 public class RestaurantController {
-    int id=0;
+    @Autowired
     private RestaurantService restaurantService;
 
-    @Autowired
-    public RestaurantController(RestaurantService restaurantService){this.restaurantService=restaurantService;}
+    @GetMapping("/{id}")
+    public Restaurant getRestaurant(@PathVariable Long id) { return restaurantService.getRestaurant(id); }
 
-    @GetMapping("/restaurant")
-    public Restaurant getRestaurant(@RequestParam Integer id){
-        Optional restaurant=restaurantService.getRestaurant(id);
-        if(restaurant.isPresent()){
-            return (Restaurant) restaurant.get();
-        }
-        return null;
+    @GetMapping
+    public List<Restaurant> getRestaurants() { return restaurantService.getAllRestaurants(); }
+
+    @PostMapping
+    public Restaurant addRestaurant(@RequestBody Restaurant restaurant) { return restaurantService.saveRestaurant(restaurant); }
+
+    @PutMapping("/{id}")
+    public Restaurant updateRestaurant(@PathVariable Long id,@RequestBody Restaurant restaurant){
+        return restaurantService.updateRestaurant(id,restaurant);
     }
 
-    @PostMapping("/restaurant/add")
-    public void addRestaurant(@RequestBody Restaurant newRestaurant){restaurantService.addRestaurant(newRestaurant);}
+    @DeleteMapping("/{id}")
+    public String deleteRestaurant(@PathVariable Long id){
+        restaurantService.deleteRestaurant(id);
+        return "Restaurant " + id + " removed!";
+    }
 
 }
