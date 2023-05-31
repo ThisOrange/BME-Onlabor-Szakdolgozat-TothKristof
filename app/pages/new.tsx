@@ -26,6 +26,7 @@ const New = () =>{
         if(Name && Location){
             const geocodeResults = await getGeocode({ address: Location });
             const { lat, lng } = await getLatLng(geocodeResults[0]);
+            console.log(lat,lng);
 
             const result = await fetch(`http://localhost:8080/restaurants`, {
                 method: 'post',

@@ -14,7 +14,7 @@ public class Restaurant {
     private Long id;
     private String name;
     private String locationName;
-    private List<Integer> location;
+    private List<Double> location;
     private List<String> allergen;
     private String menu;
 }

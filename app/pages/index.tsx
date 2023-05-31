@@ -12,6 +12,7 @@ import{
   ComboboxList,
   ComboboxOption,
 }from"@reach/combobox"
+import { useRouter } from 'next/router';
 
 
 const center = {
@@ -21,6 +22,47 @@ const center = {
 
 
 export default function Home(){
+  const router = useRouter();
+  const [markers, setMarkers] = useState([]);
+
+  useEffect(() => {
+    const getRestaurants = async () => {
+      try {
+        const response = await fetch(`http://localhost:8080/restaurants`);
+        if (!response.ok) {
+          throw new Error('Failed to fetch restaurants');
+        }
+        const data = await response.json();
+        return data;
+      } catch (error) {
+        console.log(error);
+        return [];
+      }
+    };
+
+
+    const markerClick = async (id) =>{
+      router.query.id = id.toString();
+    router.push({ pathname: `/${id.toString()}` });
+  }
+
+    getRestaurants()
+      .then((restaurants) => {
+        const restaurantMarkers = restaurants.map((restaurant:Restaurant) => (
+          <Marker
+            key={restaurant.id}
+            onClick={() => markerClick(restaurant.id)}
+            position={{ lat: restaurant.location[0], lng: restaurant.location[1] }}
+          />
+        ));
+        setMarkers(restaurantMarkers);
+      })
+      .catch((error) => {
+        console.log(error);
+      });
+  }, []);
+
+
   const { isLoaded } = useLoadScript({
     googleMapsApiKey: process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY,
     libraries:["places"],
@@ -31,11 +73,11 @@ export default function Home(){
   if(!isLoaded){
     return <label>Loading...</label>
   }
-  else return <Map/>
+  else return <Map markers={markers}/>
 }
 
 
-  function Map(){
+  function Map({ markers }){
     const [selected,setSelected]=useState(null);
     const mapRef = React.useRef();
   const onMapLoad = React.useCallback((map)=>{
@@ -52,7 +94,7 @@ export default function Home(){
 <PlacesAutocomplete setSelected={setSelected} panTo={panTo}></PlacesAutocomplete>
 </div>
 <GoogleMap mapContainerClassName="map-Style" onLoad={onMapLoad} center={center} zoom={15} options={{zoomControl:false, streetViewControl:false, mapTypeControl: false, fullscreenControl: false}}>
-
+{markers}
 </GoogleMap>
   </div>
   );
@@ -68,6 +110,7 @@ export default function Home(){
     const results= await getGeocode({address});
     const {lat,lng} = await getLatLng(results[0]);
     setSelected(lat,lng);
+    console.log(lat,lng);
     panTo({lat,lng});
   }
 
