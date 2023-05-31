@@ -1,6 +1,6 @@
 type Restaurant = {
     id: number;
-    location: Array<Number>;
+    location: Array<number>;
     locationName: string;
     allergen: Array<string>;
     menu: string;
