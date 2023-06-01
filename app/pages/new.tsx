@@ -1,15 +1,15 @@
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
-import { GoogleMap, useLoadScript, Marker, useGoogleMap} from '@react-google-maps/api';
 import usePlacesAutocomplete,{
     getGeocode,
     getLatLng,
   }from "use-places-autocomplete"
+import { Combobox, ComboboxInput, ComboboxList, ComboboxOption, ComboboxPopover } from '@reach/combobox';
 
 const New = () =>{
     const { handleSubmit } = useForm();
     const [Name, setName] = useState<string>();
-    const [Location, setLocation] = useState<string>();
+    const [Location, setLocation] = useState(null);;
     const [Menu, setMenu] = useState<string>();
     const [Allergens, setAllergens] = useState<string[]>([]);
     const addAllergen = (newString: string) => {
@@ -23,7 +23,8 @@ const New = () =>{
     };
 
     const onSubmit = async () =>{
-        if(Name && Location){
+        console.log(Location)
+        if(Name && Location && (Menu.length<1000)){
             const geocodeResults = await getGeocode({ address: Location });
             const { lat, lng } = await getLatLng(geocodeResults[0]);
             console.log(lat,lng);
@@ -55,15 +56,8 @@ const New = () =>{
           console.log(`Allergens: ${Allergens}`);
     };
 
-    function getValue(value: boolean){
-        alert(value)
-    }
-
 const nameChange = (e:any) =>{
     setName(e.target.value)
-}
-const locChange = (e:any) =>{
-    setLocation(e.target.value)
 }
 const menuChange = (e:any) =>{
     setMenu(e.target.value)
@@ -133,7 +127,7 @@ return(
                 </label>
 
                 <label className=" flex flex-col py-1 text-lg font-bold" >Location:
-                <input id="Loc" className=" my-2 w-100 px-2 py-1 rounded-md outline-emerald-400" onChange={locChange}></input>
+                <PlacesAutocomplete setSelected={setLocation} ></PlacesAutocomplete>
                 </label>
                 <label id="errorLocation" className=" text-red-500 font-bold" hidden={true}>
                 Write the location of the restaurant!
@@ -181,4 +175,25 @@ return(
     </div>
 )
 }
+
+const PlacesAutocomplete=({setSelected})=>{
+    const {ready,  value, setValue, suggestions:{status,data}, clearSuggestions} = usePlacesAutocomplete();
+    
+  const handleSelect= async (address)=>{
+    setValue(address,false);
+    clearSuggestions();
+    setSelected(address);
+  }
+
+    return  (<Combobox onSelect={handleSelect}>
+      <ComboboxInput value={value} onChange={e => setValue(e.target.value)} disabled={!ready} className="combobox-input my-2 h-9 w-100 px-2 py-1 rounded-md outline-emerald-400" />
+      <ComboboxPopover style={{ zIndex: 3000 }}>
+        <ComboboxList style={{ background: "White"}}>
+          {status === "OK" && data.map(({place_id,description}) => <ComboboxOption key={place_id} value={description}/>)}
+        </ComboboxList>
+      </ComboboxPopover>
+    </Combobox>
+    );
+  }
+
 export default New;
