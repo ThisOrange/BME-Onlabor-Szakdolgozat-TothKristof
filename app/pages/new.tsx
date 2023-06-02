@@ -5,8 +5,10 @@ import usePlacesAutocomplete,{
     getLatLng,
   }from "use-places-autocomplete"
 import { Combobox, ComboboxInput, ComboboxList, ComboboxOption, ComboboxPopover } from '@reach/combobox';
+import { useRouter } from 'next/router';
 
 const New = () =>{
+    const router = useRouter();
     const { handleSubmit } = useForm();
     const [Name, setName] = useState<string>();
     const [Location, setLocation] = useState(null);;
@@ -24,10 +26,9 @@ const New = () =>{
 
     const onSubmit = async () =>{
         console.log(Location)
-        if(Name && Location && (Menu.length<1000)){
+        if(Name && Location && (Menu && Menu.length<1000)){
             const geocodeResults = await getGeocode({ address: Location });
             const { lat, lng } = await getLatLng(geocodeResults[0]);
-            console.log(lat,lng);
 
             const result = await fetch(`http://localhost:8080/restaurants`, {
                 method: 'post',
@@ -36,8 +37,7 @@ const New = () =>{
                 },
                 body: JSON.stringify({ name: Name, locationName: Location ,location: [lat,lng], allergen: Allergens, menu: Menu}),
               }).then(res => res.json());
-
-              console.log(await result);
+              router.push("/");
 
         }
         if(!Name){
@@ -47,6 +47,12 @@ const New = () =>{
 
         if(!Location){
             const error = document.getElementById('errorLocation');
+      if (error != null) error.hidden = false;
+        }
+
+        if(Menu && Menu.length>1000){
+            const error = document.getElementById('errorMenu');
+            console.log(error);
       if (error != null) error.hidden = false;
         }
           
@@ -119,14 +125,14 @@ return(
             <div>
                 <form onSubmit={handleSubmit(onSubmit)} className="my-10 flex flex-col justify-center">
                     
-                <label className=" flex flex-col py-1 text-lg font-bold">Restaurant name:
+                <label className=" flex flex-col py-1 text-lg font-bold">Restaurant name*:
                 <input id="Name" className=" my-2 w-100 px-2 py-1 rounded-md outline-emerald-400" onChange={nameChange}></input>
                 </label>
                 <label id="errorName" className=" text-red-500 font-bold" hidden={true}>
                 Write the name of the restaurant!
                 </label>
 
-                <label className=" flex flex-col py-1 text-lg font-bold" >Location:
+                <label className=" flex flex-col py-1 text-lg font-bold" >Location*:
                 <PlacesAutocomplete setSelected={setLocation} ></PlacesAutocomplete>
                 </label>
                 <label id="errorLocation" className=" text-red-500 font-bold" hidden={true}>
@@ -166,6 +172,9 @@ return(
             <div className="my-5 flex flex-col ">
             <label htmlFor="Menu" className=" py-1 text-lg font-bold">Add Menu:</label>
             <textarea id="Menu" className=" my-2 h-52 px-2 py-1 rounded-md outline-emerald-400" onChange={menuChange}></textarea>
+            <label id="errorMenu" className=" text-red-500 font-bold" hidden={true}>
+                Menu is more than 1000 characters!
+                </label>
             <input type="submit" id="Create" value="Create" className=" my-10 h-12 px-2 py-1 rounded-md outline-emerald-400 bg-emerald-400 text-2xl font-bold cursor-pointer" ></input>
             </div>
             </form>
