@@ -1,4 +1,4 @@
-package com.onlabor.backendapp.model;
+package com.onlabor.backendapp.restaurant;
 
 import jakarta.persistence.*;
 import lombok.Data;

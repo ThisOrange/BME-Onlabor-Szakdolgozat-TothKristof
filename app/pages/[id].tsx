@@ -12,7 +12,7 @@ const New = ({ id }: Props) => {
     const getRestaurant = async () => {
       try {
         const response = await fetch(
-          `http://localhost:8080/restaurants/${id}`,
+          `${process.env.NEXT_PUBLIC_API}/restaurants/${id}`,
           {
             method: "GET",
             headers: {
@@ -48,8 +48,13 @@ const New = ({ id }: Props) => {
           </h3>
         )}
         <h3>Menu:</h3>
-      {restaurant && <p dangerouslySetInnerHTML={{ __html: restaurant.menu.replace(/\n/g, '<br>') }}></p>}
-
+        {restaurant && (
+          <p
+            dangerouslySetInnerHTML={{
+              __html: restaurant.menu.replace(/\n/g, "<br>"),
+            }}
+          ></p>
+        )}
       </rect>
     </div>
   );

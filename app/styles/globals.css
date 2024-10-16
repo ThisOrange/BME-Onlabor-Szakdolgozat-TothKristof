@@ -3,81 +3,87 @@
 @tailwind utilities;
 
 html {
-    width: 100%;
-    height: 100%;
-    background-color: #5988A1;
-  }
+  width: 100%;
+  height: 100%;
+  background-color: #5988a1;
+}
 
-  h1 {
-    font-size: 300%;
-    margin-left: 40px;
-    margin-right: 40px;
-    margin-top:40px;
-  }
-  h2 {
-    font-size: 200%;
-    margin-left: 40px;
-    margin-right: 40px;
-    margin-top:30px;
-  }
-  h3 {
-    font-size: 125%;
-    margin-left: 40px;
-    margin-right: 40px;
-    margin-top:20px;
-  }
+h1 {
+  font-size: 300%;
+  margin-left: 40px;
+  margin-right: 40px;
+  margin-top: 40px;
+}
+h2 {
+  font-size: 200%;
+  margin-left: 40px;
+  margin-right: 40px;
+  margin-top: 30px;
+}
+h3 {
+  font-size: 125%;
+  margin-left: 40px;
+  margin-right: 40px;
+  margin-top: 20px;
+}
 
-  p{
-    margin-left: 40px;
-    margin-right: 40px;
-  }
+p {
+  margin-left: 40px;
+  margin-right: 40px;
+}
 
-  ul{
-    margin-left: 40px;
-    margin-right: 40px;
-  }
+ul {
+  margin-left: 40px;
+  margin-right: 40px;
+}
 
-  li{
-    margin-top: 5px;
-    
-  }
+li {
+  margin-top: 5px;
+}
 
-  .restaurant-container{
-    position: absolute;
-    left:25%;
-    width:50%;
-    height:93%;
-  }
+.restaurant-container {
+  position: absolute;
+  left: 25%;
+  width: 50%;
+  height: 93%;
+}
 
-  .places-container{
-    position: absolute;
-    top:100px;
-    left:50%;
-    transform: translateX(-50%);
-    z-index:10;
-    width:300px;
-  }
+.places-container {
+  position: absolute;
+  top: 100px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 10;
+  width: 300px;
+}
 
-  .allergen-container{
-    position: absolute;
-    z-index:10;
-    top:64px;
-    opacity:80%;
-  }
+.allergen-container {
+  position: absolute;
+  z-index: 10;
+  top: 64px;
+  opacity: 80%;
+}
 
-  .right-allergen{
-    position: absolute;
-    left: 120px;
-  }
+.right-allergen {
+  position: absolute;
+  left: 120px;
+}
 
-  .map-Style{
-    width: 100%;
-    height: 93vh;
-  }
+.map-Style {
+  width: 100%;
+  height: 93vh;
+}
 
+.combobox-input {
+  width: 100%;
+  padding: 0.5rem;
+}
 
-  .combobox-input{
-    width:100%;
-    padding:0.5rem;
-  }
-  
+.clickable {
+  cursor: pointer;
+  color: #f0f0f0;
+}
+.clickable:hover {
+  cursor: pointer;
+  color: #0d485b;
+}
