@@ -1,7 +1,5 @@
 package com.onlabor.backendapp.restaurant;
 
-import com.onlabor.backendapp.restaurant.Restaurant;
-import com.onlabor.backendapp.restaurant.RestaurantService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 

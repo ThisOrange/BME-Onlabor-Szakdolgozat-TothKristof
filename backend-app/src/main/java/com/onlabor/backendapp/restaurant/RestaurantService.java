@@ -1,7 +1,5 @@
 package com.onlabor.backendapp.restaurant;
 
-import com.onlabor.backendapp.restaurant.Restaurant;
-import com.onlabor.backendapp.restaurant.RestaurantRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -11,8 +9,6 @@ import java.util.List;
 public class RestaurantService {
     @Autowired
     private RestaurantRepository restaurantRepository;
-
-    private List<Restaurant> restaurantList;
 
     public List<Restaurant> getAllRestaurants() {
         return restaurantRepository.findAll();
