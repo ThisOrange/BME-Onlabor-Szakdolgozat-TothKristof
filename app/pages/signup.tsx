@@ -9,10 +9,8 @@ const Login = () => {
   const { handleSubmit } = useForm();
   const [Email, setEmail] = useState<string>();
   const [Password, setPassword] = useState<string>();
-
-  const handleSignup = () => {
-    router.push("/signup");
-  };
+  const [Role, setRole] = useState<boolean>();
+  const [Username, setUsername] = useState<string>();
 
   const emailChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setEmail(e.target.value);
@@ -20,6 +18,12 @@ const Login = () => {
 
   const passwordChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setPassword(e.target.value);
+  };
+  const usernameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setUsername(e.target.value);
+  };
+  const roleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setRole(e.target.checked); // Sets role to true if checked, false if unchecked
   };
 
   interface JwtPayload {
@@ -44,50 +48,63 @@ const Login = () => {
 
     try {
       const response = await fetch(
-        `${process.env.NEXT_PUBLIC_API}/api/auth/authenticate`,
+        `${process.env.NEXT_PUBLIC_API}/api/registration`,
         {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
           },
-          body: JSON.stringify({ email: Email, password: Password }),
+          body: JSON.stringify({
+            userName: Username,
+            email: Email,
+            password: Password,
+            role: Role,
+          }),
         }
       );
 
       if (response.ok) {
-        const textResponse = await response.text(); // Get the raw response as text
-        console.log("Response from server:", textResponse);
-
-        // Now handle the token properly, assuming it's a plain JWT string
-        const token = textResponse; // This assumes the token is returned as a string in the response body
-
-        // Save JWT token to local storage
-        localStorage.setItem("jwtToken", token);
-
-        // Decode the token to get username and role
-        const decodedToken = jwtDecode<JwtPayload>(token);
-        const username = decodedToken.Name; // assuming 'sub' is used for the username
-        const role = decodedToken.role;
-        const email = decodedToken.sub;
-
-        // Save username and role in local storage
-        localStorage.setItem("username", username);
-        localStorage.setItem("role", role);
-        localStorage.setItem("email", email);
-        setIsLoggedIn(true);
-        router.push("/");
-
-        // Redirect to a protected route or update UI
-        console.log(
-          "Login successful. User:",
-          localStorage.getItem("username"),
-          "Role:",
-          localStorage.getItem("role")
+        // Automatically login after registration is successful
+        const loginResponse = await fetch(
+          `${process.env.NEXT_PUBLIC_API}/api/auth/authenticate`,
+          {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({ email: Email, password: Password }),
+          }
         );
+
+        if (loginResponse.ok) {
+          const textResponse = await loginResponse.text(); // Get the raw response as text
+          console.log("Login successful:", textResponse);
+
+          // Handle the JWT token and store it
+          const token = textResponse; // This assumes the token is returned as a string in the response body
+          localStorage.setItem("jwtToken", token);
+
+          // Decode the token to get user information
+          const decodedToken = jwtDecode<JwtPayload>(token);
+          const username = decodedToken.Name;
+          const role = decodedToken.role;
+          const email = decodedToken.sub;
+
+          // Save username and role in local storage
+          localStorage.setItem("username", username);
+          localStorage.setItem("role", role);
+          localStorage.setItem("email", email);
+          setIsLoggedIn(true);
+          router.push("/");
+
+          console.log("Login successful. User:", username, "Role:", role);
+        } else {
+          const errorText = await loginResponse.text();
+          console.error("Login failed:", errorText);
+        }
       } else {
-        // If the login failed, log the response as text for debugging
         const errorText = await response.text();
-        console.error("Login failed:", errorText);
+        console.error("Registration failed:", errorText);
       }
     } catch (error) {
       console.error("An error occurred:", error);
@@ -105,6 +122,21 @@ const Login = () => {
             onSubmit={handleSubmit(onSubmit)}
             className="my-10 flex flex-col justify-center"
           >
+            <label className=" flex flex-col py-1 text-lg font-bold">
+              Username:
+              <input
+                id="Username"
+                className=" my-2 w-100 px-2 py-1 rounded-md outline-emerald-400"
+                onChange={usernameChange}
+              ></input>
+            </label>
+            <label
+              id="errorPassword"
+              className=" text-red-500 font-bold"
+              hidden={true}
+            >
+              Missing Password!
+            </label>
             <label className=" flex flex-col py-1 text-lg font-bold">
               Email:
               <input
@@ -136,22 +168,19 @@ const Login = () => {
             >
               Missing Password!
             </label>
-            <div>
-              <label id="errorPassword" className="">
-                Don't have an account?
-              </label>
-              <a
-                onClick={handleSignup}
-                className=" text-primary-white_gray font-bold hover clickable"
-              >
-                {" "}
-                Sign up
-              </a>
-            </div>
+            <input
+              type="checkbox"
+              id="Role"
+              onChange={(e) => roleChange(e)}
+            ></input>
+            <label htmlFor="Role" className="mx-2">
+              Role{" "}
+            </label>
+
             <input
               type="submit"
-              id="Login"
-              value="LOGIN"
+              id="SignUp"
+              value="Sign Up"
               className=" my-10 h-12 px-2 py-1 rounded-md outline-emerald-400 bg-emerald-400 text-2xl font-bold cursor-pointer"
             ></input>
           </form>

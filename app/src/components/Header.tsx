@@ -1,19 +1,27 @@
-import Link from "next/link";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/router";
-function Header() {
+import { useLoginContext } from "../components/LoginContext"; // Import the useLoginContext hook
+
+const Header = () => {
+  const { isLoggedIn, setIsLoggedIn } = useLoginContext(); // Access context values
+  const [username, setUsername] = useState<string>("");
   const router = useRouter();
 
-  const searchClick = () => {
-    router.push("/");
-  };
-  const aboutClick = () => {
-    router.push("/about");
-  };
-  const newClick = () => {
-    router.push("/new");
-  };
+  useEffect(() => {
+    if (typeof window !== "undefined" && isLoggedIn) {
+      const storedUsername = localStorage.getItem("username");
+      setUsername(storedUsername || "");
+    } else {
+      setUsername(""); // Reset username when logged out
+    }
+  }, [isLoggedIn]); // Dependency on isLoggedIn
+
   const loginClick = () => {
-    router.push("/login");
+    if (isLoggedIn) {
+      router.push("/profile");
+    } else {
+      router.push("/login"); // Redirect to login page if not logged in
+    }
   };
 
   return (
@@ -24,30 +32,30 @@ function Header() {
             className="mx-1 my-1 w-36 h-14 text-white text-center text-xl bg-slate-800 cursor-pointer outline-emerald-400 hover:outline"
             type="button"
             value="Search"
-            onClick={searchClick}
+            onClick={() => router.push("/")}
           />
           <input
             className="mx-1 my-1 w-36 h-14 text-white text-center text-xl bg-slate-800 cursor-pointer outline-emerald-400 hover:outline"
             type="button"
             value="About"
-            onClick={aboutClick}
+            onClick={() => router.push("/about")}
           />
           <input
             className="mx-1 my-1 w-36 h-14 text-white text-center text-xl bg-slate-800 cursor-pointer outline-emerald-400 hover:outline"
             type="button"
             value="New"
-            onClick={newClick}
+            onClick={() => router.push("/new")}
           />
         </div>
         <input
           className="mx-1 my-1 w-36 h-14 text-white text-center text-xl bg-slate-800 cursor-pointer outline-emerald-400 hover:outline"
           type="button"
-          value="Login"
+          value={isLoggedIn ? username : "Login"}
           onClick={loginClick}
         />
       </div>
     </div>
   );
-}
+};
 
 export default Header;

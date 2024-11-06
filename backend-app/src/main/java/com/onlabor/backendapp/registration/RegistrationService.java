@@ -26,7 +26,7 @@ public class RegistrationService {
                         request.getUserName(),
                         request.getEmail(),
                         request.getPassword(),
-                        AppUserRole.USER));
+                        request.isRole()));
     }
 
     public void delete(RegistrationRequest request) {

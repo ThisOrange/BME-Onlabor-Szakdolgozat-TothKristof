@@ -37,11 +37,14 @@ public class AppUser implements UserDetails {
     private Boolean locked = false;
     private Boolean enabled = true;
 
-    public AppUser(String username, String email, String password, AppUserRole appUserRole) {
+    public AppUser(String username, String email, String password, boolean appUserRole) {
         this.username = username;
         this.email = email;
         this.password = password;
-        this.appUserRole = appUserRole;
+        if (appUserRole)
+            this.appUserRole = AppUserRole.RESTOWNER;
+        else
+            this.appUserRole = AppUserRole.USER;
     }
 
     @Override
@@ -58,10 +61,6 @@ public class AppUser implements UserDetails {
     @Override
     public String getUsername() {
         return username;
-    }
-
-    public String getEmail() {
-        return email;
     }
 
     @Override

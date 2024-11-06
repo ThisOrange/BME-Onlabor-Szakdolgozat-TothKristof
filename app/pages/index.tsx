@@ -4,14 +4,8 @@ import usePlacesAutocomplete, {
   getGeocode,
   getLatLng,
 } from "use-places-autocomplete";
-import {
-  Combobox,
-  ComboboxInput,
-  ComboboxPopover,
-  ComboboxList,
-  ComboboxOption,
-} from "@reach/combobox";
 import { useRouter } from "next/router";
+
 const blueEssenceStyle = [
   {
     featureType: "administrative",
@@ -128,8 +122,22 @@ function Map() {
   const refreshMarkers = () => {
     const getRestaurants = async () => {
       try {
+        // Retrieve the JWT token from localStorage
+        const token = localStorage.getItem("jwtToken");
+
+        // Check if the token exists
+        if (!token) {
+          throw new Error("No JWT token found in localStorage.");
+        }
         const response = await fetch(
-          `${process.env.NEXT_PUBLIC_API}/restaurants`
+          `${process.env.NEXT_PUBLIC_API}/restaurants`,
+          {
+            method: "GET", // If you are only fetching data
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${token}`, // Include the JWT token here
+            },
+          }
         );
         if (!response.ok) {
           throw new Error("Failed to fetch restaurants");
@@ -156,7 +164,7 @@ function Map() {
             fillColor: "#34D399",
             fillOpacity: 1,
             strokeColor: "#1F2937",
-            anchor: { x: 12, y: 24 },
+            anchor: new google.maps.Point(12, 24),
           },
         };
 
@@ -206,17 +214,17 @@ function Map() {
   return (
     <div>
       <div className="places-container">
-        <rect className=" h-14 flex flex-col justify-start  bg-emerald-400 background-color-black rounded-lg">
-          <div className=" mx-2 my-2 align-middle">
+        <div className="h-14 flex flex-col justify-start bg-emerald-400 background-color-black rounded-lg">
+          <div className="mx-2 my-2 align-middle">
             <PlacesAutocomplete
               setSelected={setSelected}
               panTo={panTo}
             ></PlacesAutocomplete>
           </div>
-        </rect>
+        </div>
       </div>
       <div className="allergen-container">
-        <rect className=" h-36 w-52 flex flex-col justify-start  bg-slate-800 text-white">
+        <div className="h-36 w-52 flex flex-col justify-start bg-slate-800 text-white">
           <div className=" flex flex-row justify-start my-1 mx-3">
             <input
               type="checkbox"
@@ -300,7 +308,7 @@ function Map() {
               </label>
             </div>
           </div>
-        </rect>
+        </div>
       </div>
       <GoogleMap
         mapContainerClassName="map-Style"
@@ -330,7 +338,7 @@ const PlacesAutocomplete = ({ setSelected, panTo }) => {
     clearSuggestions,
   } = usePlacesAutocomplete();
 
-  const handleSelect = async (address: string) => {
+  const handleSelect = async (address) => {
     setValue(address, false);
     clearSuggestions();
 
@@ -341,22 +349,28 @@ const PlacesAutocomplete = ({ setSelected, panTo }) => {
   };
 
   return (
-    <Combobox onSelect={handleSelect}>
-      <ComboboxInput
+    <div className="">
+      <input
         value={value}
         onChange={(e) => setValue(e.target.value)}
         disabled={!ready}
-        className="combobox-input"
+        className="combobox-input border rounded-md w-full"
         placeholder="Search Address"
       />
-      <ComboboxPopover style={{ zIndex: 3000 }}>
-        <ComboboxList style={{ background: "White" }}>
-          {status === "OK" &&
-            data.map(({ place_id, description }) => (
-              <ComboboxOption key={place_id} value={description} />
-            ))}
-        </ComboboxList>
-      </ComboboxPopover>
-    </Combobox>
+
+      {status === "OK" && (
+        <ul className="suggestion-item w-full bg-white border border-gray-300 rounded-md shadow-lg z-10 max-h-60 overflow-auto m-0">
+          {data.map(({ place_id, description }) => (
+            <li
+              key={place_id}
+              onClick={() => handleSelect(description)}
+              className=" cursor-pointer hover:bg-gray-200"
+            >
+              {description}
+            </li>
+          ))}
+        </ul>
+      )}
+    </div>
   );
 };

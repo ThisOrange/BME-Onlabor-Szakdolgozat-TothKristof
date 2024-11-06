@@ -6,12 +6,13 @@
     "start": "next start"
   },
   "dependencies": {
-    "@reach/combobox": "^0.18.0",
     "@react-google-maps/api": "^2.18.1",
-    "next": "latest",
+    "jwt-decode": "^4.0.0",
+    "next": "^15.0.2",
     "react": "18.2.0",
     "react-dom": "18.2.0",
     "react-hook-form": "^7.43.9",
+    "react-select": "^5.8.2",
     "use-places-autocomplete": "^4.0.0"
   },
   "devDependencies": {
