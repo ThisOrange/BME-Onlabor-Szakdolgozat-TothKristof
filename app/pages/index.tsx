@@ -122,20 +122,12 @@ function Map() {
   const refreshMarkers = () => {
     const getRestaurants = async () => {
       try {
-        // Retrieve the JWT token from localStorage
-        const token = localStorage.getItem("jwtToken");
-
-        // Check if the token exists
-        if (!token) {
-          throw new Error("No JWT token found in localStorage.");
-        }
         const response = await fetch(
           `${process.env.NEXT_PUBLIC_API}/restaurants`,
           {
             method: "GET", // If you are only fetching data
             headers: {
               "Content-Type": "application/json",
-              Authorization: `Bearer ${token}`, // Include the JWT token here
             },
           }
         );

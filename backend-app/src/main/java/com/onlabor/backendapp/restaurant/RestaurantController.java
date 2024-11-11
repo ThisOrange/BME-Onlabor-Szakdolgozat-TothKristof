@@ -23,6 +23,7 @@ public class RestaurantController {
 
     @PostMapping
     public Restaurant addRestaurant(@RequestBody Restaurant restaurant) {
+        System.out.println("Went through");
         return restaurantService.saveRestaurant(restaurant);
     }
 

@@ -2,6 +2,7 @@ package com.onlabor.backendapp.security.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
@@ -36,8 +37,9 @@ public class WebSecurityConfig {
                 .cors()
                 .and()
                 .authorizeHttpRequests()
-                .requestMatchers("/api/auth/authenticate", "/api/registration")
+                .requestMatchers("/api/auth/authenticate", "/api/registration", "/restaurants/**", "/reviews/**")
                 .permitAll()
+                .requestMatchers(HttpMethod.POST, "/restaurants").hasRole("RESTOWNER")
                 .anyRequest()
                 .authenticated()
                 .and()

@@ -1,16 +1,18 @@
-// context/LoginContext.tsx
-import React, { createContext, useState, useContext, ReactNode } from "react";
+import React, {
+  createContext,
+  useState,
+  useEffect,
+  useContext,
+  ReactNode,
+} from "react";
 
-// Define the type for the context
 interface LoginContextType {
   isLoggedIn: boolean;
   setIsLoggedIn: (isLoggedIn: boolean) => void;
 }
 
-// Create the context with default values
 const LoginContext = createContext<LoginContextType | undefined>(undefined);
 
-// Create a custom hook to use the context
 export const useLogin = () => {
   const context = useContext(LoginContext);
   if (!context) {
@@ -19,13 +21,39 @@ export const useLogin = () => {
   return context;
 };
 
-// Provider component to wrap the app
 interface LoginProviderProps {
   children: ReactNode;
 }
 
 export const LoginProvider = ({ children }: LoginProviderProps) => {
-  const [isLoggedIn, setIsLoggedIn] = useState<boolean>(false);
+  // Initialize isLoggedIn as undefined initially
+  const [isLoggedIn, setIsLoggedIn] = useState<boolean | undefined>(undefined);
+
+  useEffect(() => {
+    // This will only run on the client side (after the component mounts)
+    if (typeof window !== "undefined") {
+      const storedValue = localStorage.getItem("isLoggedIn");
+      if (storedValue !== null) {
+        setIsLoggedIn(JSON.parse(storedValue)); // Update state based on localStorage
+      } else {
+        setIsLoggedIn(false); // Set to false if not found in localStorage
+      }
+    }
+  }, []); // Runs only once when the component mounts
+
+  // This effect updates localStorage when the `isLoggedIn` state changes
+  useEffect(() => {
+    if (isLoggedIn !== undefined) {
+      if (typeof window !== "undefined") {
+        localStorage.setItem("isLoggedIn", JSON.stringify(isLoggedIn));
+      }
+    }
+  }, [isLoggedIn]); // Only run when isLoggedIn changes
+
+  // If `isLoggedIn` is undefined, show a loading state until the check is complete
+  if (isLoggedIn === undefined) {
+    return <div>Loading...</div>; // Or any other loading UI
+  }
 
   return (
     <LoginContext.Provider value={{ isLoggedIn, setIsLoggedIn }}>

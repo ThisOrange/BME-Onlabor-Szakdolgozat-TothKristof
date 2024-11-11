@@ -1,7 +1,5 @@
 package com.onlabor.backendapp.registration;
 
-import com.onlabor.backendapp.user.AppUserRole;
-
 import lombok.AllArgsConstructor;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;

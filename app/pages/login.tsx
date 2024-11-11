@@ -25,6 +25,7 @@ const Login = () => {
   interface JwtPayload {
     sub: string; // The username or subject
     role: string; // The role field (which you'll add on the backend)
+    userId: string;
     Name: string;
   }
 
@@ -69,10 +70,12 @@ const Login = () => {
         const username = decodedToken.Name; // assuming 'sub' is used for the username
         const role = decodedToken.role;
         const email = decodedToken.sub;
+        const userId = decodedToken.userId;
 
         // Save username and role in local storage
         localStorage.setItem("username", username);
         localStorage.setItem("role", role);
+        localStorage.setItem("userId", userId);
         localStorage.setItem("email", email);
         setIsLoggedIn(true);
         router.push("/");

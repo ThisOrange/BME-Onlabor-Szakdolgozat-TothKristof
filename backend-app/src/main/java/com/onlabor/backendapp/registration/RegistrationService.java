@@ -3,7 +3,6 @@ package com.onlabor.backendapp.registration;
 import org.springframework.stereotype.Service;
 
 import com.onlabor.backendapp.user.AppUser;
-import com.onlabor.backendapp.user.AppUserRole;
 import com.onlabor.backendapp.user.AppUserService;
 
 import lombok.AllArgsConstructor;

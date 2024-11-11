@@ -1,10 +1,8 @@
 package com.onlabor.backendapp.user;
 
-import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.core.userdetails.UserDetailsService;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
+
 import lombok.AllArgsConstructor;
 
 @Service
@@ -36,5 +34,9 @@ public class AppUserService {
             throw new IllegalStateException("Selected user doesn't exist!");
         }
         appUserRepository.delete(appUserRepository.findByEmail(email).get());
+    }
+
+    public AppUser getAppUser(Long id) {
+        return appUserRepository.findById(id).orElse(null);
     }
 }

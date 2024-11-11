@@ -41,11 +41,22 @@ li {
   margin-top: 5px;
 }
 
+.header {
+  position: sticky;
+  top: 0;
+}
+
 .restaurant-container {
-  position: absolute;
-  left: 25%;
-  width: 50%;
-  height: 93%;
+  display: flex;
+  flex-direction: column; /* Stack children vertically */
+  align-items: flex-start; /* Align to the left or center as needed */
+  width: 100%;
+  max-width: 800px; /* Set a maximum width if needed */
+  padding: 20px;
+  background-color: white;
+  border-radius: 10px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  margin-bottom: 20px; /* Optional: adds space at the bottom */
 }
 
 .places-container {
@@ -86,4 +97,38 @@ li {
 .clickable:hover {
   cursor: pointer;
   color: #0d485b;
+}
+.form-container {
+  width: 100%; /* Full width container */
+  max-width: 100%; /* No max width */
+}
+
+.comment {
+  border: 1px solid #ddd;
+  padding: 10px;
+  margin: 10px 0;
+  width: 100%; /* Ensure the comment takes up full width */
+}
+textarea {
+  width: 100%; /* Ensure the textarea takes full width */
+  min-height: 100px; /* Set a minimum height for the textarea */
+  padding: 10px; /* Padding inside the textarea */
+  border: 1px solid #ddd; /* Border styling */
+  box-sizing: border-box; /* Ensure the padding doesn't break the layout */
+}
+
+.comments-list {
+  width: 100%; /* Make sure the container takes up the full width */
+  margin: 0 auto; /* Center align the comments list */
+}
+
+.comment-header {
+  display: flex;
+  align-items: center; /* Vertically align items */
+  gap: 10px; /* Adds space between the elements (username and rating) */
+}
+
+h4 {
+  margin: 0;
+  font-weight: bold;
 }

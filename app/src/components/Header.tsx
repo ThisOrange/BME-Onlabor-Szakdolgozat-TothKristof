@@ -9,10 +9,17 @@ const Header = () => {
 
   useEffect(() => {
     if (typeof window !== "undefined" && isLoggedIn) {
+      const newButton = document.getElementById("AddRestaurant");
+
+      if (localStorage.getItem("role") === "RESTOWNER") {
+        if (newButton) newButton.hidden = false;
+      }
       const storedUsername = localStorage.getItem("username");
       setUsername(storedUsername || "");
     } else {
-      setUsername(""); // Reset username when logged out
+      setUsername("");
+      const newButton = document.getElementById("AddRestaurant");
+      if (newButton) newButton.hidden = true;
     }
   }, [isLoggedIn]); // Dependency on isLoggedIn
 
@@ -25,8 +32,8 @@ const Header = () => {
   };
 
   return (
-    <div className="App">
-      <div className="h-16 w-full flex justify-between items-center bg-slate-800 border border-slate-600">
+    <div className="header">
+      <div className="h-16 w-full flex justify-between items-center bg-slate-800 border border-slate-600 top-0 z-50">
         <div className="flex">
           <input
             className="mx-1 my-1 w-36 h-14 text-white text-center text-xl bg-slate-800 cursor-pointer outline-emerald-400 hover:outline"
@@ -41,9 +48,11 @@ const Header = () => {
             onClick={() => router.push("/about")}
           />
           <input
+            id="AddRestaurant"
             className="mx-1 my-1 w-36 h-14 text-white text-center text-xl bg-slate-800 cursor-pointer outline-emerald-400 hover:outline"
             type="button"
-            value="New"
+            value="Add Restaurant"
+            hidden={true}
             onClick={() => router.push("/new")}
           />
         </div>

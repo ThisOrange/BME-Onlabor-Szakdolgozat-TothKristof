@@ -5,6 +5,8 @@ import lombok.Data;
 
 import java.util.List;
 
+import com.onlabor.backendapp.review.Review;
+
 @Data
 @Entity
 @Table(name = "restaurants")
