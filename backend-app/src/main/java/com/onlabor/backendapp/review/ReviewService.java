@@ -5,6 +5,8 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import jakarta.transaction.Transactional;
+
 @Service
 public class ReviewService {
     @Autowired
@@ -25,6 +27,11 @@ public class ReviewService {
     public void deleteReview(Long id) {
         if (reviewRepository.findById(id).orElse(null) != null)
             reviewRepository.deleteById(id);
+    }
+
+    @Transactional
+    public void deleteReviews(Long id) {
+        reviewRepository.deleteByRestId(id);
     }
 
     public void deleteReviews() {

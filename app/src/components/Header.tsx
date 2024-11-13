@@ -32,7 +32,7 @@ const Header = () => {
   };
 
   return (
-    <div className="header">
+    <div className="header z-50">
       <div className="h-16 w-full flex justify-between items-center bg-slate-800 border border-slate-600 top-0 z-50">
         <div className="flex">
           <input

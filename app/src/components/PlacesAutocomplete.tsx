@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import Select from "react-select";
 import usePlacesAutocomplete from "use-places-autocomplete";
 
-const PlacesAutocomplete = ({ setSelected }) => {
+const PlacesAutocomplete = ({ setSelected, address }) => {
   const {
     ready,
     value,
@@ -11,7 +11,7 @@ const PlacesAutocomplete = ({ setSelected }) => {
     clearSuggestions,
   } = usePlacesAutocomplete();
 
-  const [inputValue, setInputValue] = useState(""); // Track what the user types
+  const [inputValue, setInputValue] = useState(address || ""); // Track what the user types, with initial value
 
   // Handle the user input and update inputValue
   const handleInputChange = (newInputValue) => {
@@ -21,10 +21,10 @@ const PlacesAutocomplete = ({ setSelected }) => {
 
   // Handle when a suggestion is selected
   const handleSelect = async (selectedOption) => {
-    const address = selectedOption.label;
-    setValue(address, false); // Update the input field with the selected address
+    const selectedAddress = selectedOption.label;
+    setValue(selectedAddress, false); // Update the input field with the selected address
     clearSuggestions(); // Clear suggestions from the dropdown
-    setSelected(address); // Pass the selected address back to the parent component
+    setSelected(selectedAddress); // Pass the selected address back to the parent component
   };
 
   // Map suggestions to react-select options format
@@ -33,12 +33,10 @@ const PlacesAutocomplete = ({ setSelected }) => {
     value: place_id,
   }));
 
-  // Update options whenever new suggestions are fetched from Places API
+  // Update input value if the address prop changes
   useEffect(() => {
-    if (status === "OK") {
-      // You can filter, sort, or modify suggestions here if needed
-    }
-  }, [data, status]);
+    setInputValue(address || ""); // Reset input value if address prop changes
+  }, [address]);
 
   const customStyles = {
     control: (provided) => ({

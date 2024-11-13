@@ -25,6 +25,13 @@ h3 {
   margin-left: 40px;
   margin-right: 40px;
   margin-top: 20px;
+  font-weight: 600;
+  word-wrap: break-word;
+}
+
+h4 {
+  margin: 0;
+  font-weight: bold;
 }
 
 p {
@@ -103,7 +110,8 @@ li {
   max-width: 100%; /* No max width */
 }
 
-.comment {
+.review,
+.restaurant {
   border: 1px solid #ddd;
   padding: 10px;
   margin: 10px 0;
@@ -117,18 +125,19 @@ textarea {
   box-sizing: border-box; /* Ensure the padding doesn't break the layout */
 }
 
-.comments-list {
+.reviews-list {
   width: 100%; /* Make sure the container takes up the full width */
   margin: 0 auto; /* Center align the comments list */
 }
 
-.comment-header {
+.review-header {
   display: flex;
   align-items: center; /* Vertically align items */
   gap: 10px; /* Adds space between the elements (username and rating) */
 }
 
-h4 {
-  margin: 0;
-  font-weight: bold;
+.restaurant-header {
+  display: flex;
+  align-items: center; /* Vertically align items */
+  gap: 10px; /* Adds space between the elements (username and rating) */
 }

@@ -3,6 +3,8 @@ package com.onlabor.backendapp.restaurant;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import jakarta.transaction.Transactional;
+
 import java.util.List;
 
 @Service
@@ -37,6 +39,14 @@ public class RestaurantService {
         return restaurantRepository.save(existing);
     }
 
+    public Restaurant updateRating(Long id, Float rating) {
+        Restaurant existing = getRestaurant(id);
+        existing.setRating(rating);
+        System.out.println(rating);
+        return restaurantRepository.save(existing);
+    }
+
+    @Transactional
     public void deleteRestaurant(Long id) {
         if (restaurantRepository.findById(id).orElse(null) != null)
             restaurantRepository.deleteById(id);

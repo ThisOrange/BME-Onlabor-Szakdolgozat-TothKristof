@@ -37,9 +37,10 @@ public class WebSecurityConfig {
                 .cors()
                 .and()
                 .authorizeHttpRequests()
-                .requestMatchers("/api/auth/authenticate", "/api/registration", "/restaurants/**", "/reviews/**")
+                .requestMatchers("/api/auth/authenticate", "/api/registration", "/api/user/**", "/restaurants/**",
+                        "/reviews/**")
                 .permitAll()
-                .requestMatchers(HttpMethod.POST, "/restaurants").hasRole("RESTOWNER")
+                .requestMatchers(HttpMethod.POST, "/restaurants").hasRole("ROLE_RESTOWNER")
                 .anyRequest()
                 .authenticated()
                 .and()

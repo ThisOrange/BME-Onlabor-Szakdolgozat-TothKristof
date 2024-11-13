@@ -1,10 +1,18 @@
-import { GoogleMap, useLoadScript, Marker } from "@react-google-maps/api";
+import {
+  GoogleMap,
+  useLoadScript,
+  Marker,
+  InfoBox,
+} from "@react-google-maps/api";
 import React, { useEffect, useRef, useState } from "react";
 import usePlacesAutocomplete, {
   getGeocode,
   getLatLng,
 } from "use-places-autocomplete";
 import { useRouter } from "next/router";
+import StarRating from "../src/components/StarRating/StarRating";
+
+const libraries: ["places"] = ["places"];
 
 const blueEssenceStyle = [
   {
@@ -103,21 +111,26 @@ const center = {
 
 export default function Home() {
   const { isLoaded } = useLoadScript({
-    googleMapsApiKey: process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY,
-    libraries: ["places"],
+    googleMapsApiKey: process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY!,
+    libraries,
   });
 
   if (!isLoaded) {
     return <label>Loading...</label>;
-  } else return <Map />;
+  } else {
+    return <Map />;
+  }
 }
 
 function Map() {
   const [selected, setSelected] = useState(null);
   const mapRef = useRef<any>(null);
   const router = useRouter();
-  const [markers, setMarkers] = useState([]);
+  const [markers, setMarkers] = useState<JSX.Element[]>([]);
   const [Allergens, setAllergens] = useState<string[]>([]);
+  const [hoveredRestaurant, setHoveredRestaurant] = useState<Restaurant | null>(
+    null
+  );
 
   const refreshMarkers = () => {
     const getRestaurants = async () => {
@@ -169,6 +182,8 @@ function Map() {
               key={restaurant.id}
               options={markerOptions}
               onClick={() => markerClick(restaurant.id)}
+              onMouseOver={() => setHoveredRestaurant(restaurant)}
+              onMouseOut={() => setHoveredRestaurant(null)}
               position={{
                 lat: restaurant.location[0],
                 lng: restaurant.location[1],
@@ -221,7 +236,7 @@ function Map() {
             <input
               type="checkbox"
               id="Lactose"
-              onClick={(e) => allChange(e, "Lactose")}
+              onChange={(e) => allChange(e, "Lactose")}
             ></input>
             <label htmlFor="Lactose" className="mx-2">
               Lactose{" "}
@@ -231,7 +246,7 @@ function Map() {
               <input
                 type="checkbox"
                 id="Peanuts"
-                onClick={(e) => allChange(e, "Peanut")}
+                onChange={(e) => allChange(e, "Peanut")}
               ></input>
               <label htmlFor="Peanuts" className="mx-2">
                 Peanut{" "}
@@ -242,7 +257,7 @@ function Map() {
             <input
               type="checkbox"
               id="Meat"
-              onClick={(e) => allChange(e, "Meat")}
+              onChange={(e) => allChange(e, "Meat")}
             ></input>
             <label htmlFor="Meat" className="mx-2">
               Meat{" "}
@@ -252,7 +267,7 @@ function Map() {
               <input
                 type="checkbox"
                 id="Wheat"
-                onClick={(e) => allChange(e, "Wheat")}
+                onChange={(e) => allChange(e, "Wheat")}
               ></input>
               <label htmlFor="Wheat" className="mx-2">
                 Wheat{" "}
@@ -264,7 +279,7 @@ function Map() {
             <input
               type="checkbox"
               id="Gluten"
-              onClick={(e) => allChange(e, "Gluten")}
+              onChange={(e) => allChange(e, "Gluten")}
             ></input>
             <label htmlFor="Gluten" className="mx-2">
               Gluten
@@ -273,7 +288,7 @@ function Map() {
               <input
                 type="checkbox"
                 id="Egg"
-                onClick={(e) => allChange(e, "Egg")}
+                onChange={(e) => allChange(e, "Egg")}
               ></input>
               <label htmlFor="Egg" className="mx-2">
                 Egg
@@ -284,7 +299,7 @@ function Map() {
             <input
               type="checkbox"
               id="Crustacean"
-              onClick={(e) => allChange(e, "Crustacean")}
+              onChange={(e) => allChange(e, "Crustacean")}
             ></input>
             <label htmlFor="Crustacean" className="mx-2">
               Crustacean
@@ -293,7 +308,7 @@ function Map() {
               <input
                 type="checkbox"
                 id="Soy"
-                onClick={(e) => allChange(e, "Soy")}
+                onChange={(e) => allChange(e, "Soy")}
               ></input>
               <label htmlFor="Soy" className="mx-2">
                 Soy
@@ -316,6 +331,53 @@ function Map() {
         }}
       >
         {markers}
+        {hoveredRestaurant && (
+          <InfoBox
+            position={
+              new google.maps.LatLng(
+                hoveredRestaurant.location[0],
+                hoveredRestaurant.location[1]
+              )
+            }
+            onCloseClick={() => setHoveredRestaurant(null)} // Close info box on close
+            options={{
+              boxStyle: {
+                backgroundColor: "#ffffff", // Set the background color
+                border: "2px solid #34D399", // Set the border color
+                borderRadius: "8px", // Set border radius
+                padding: "10px", // Add padding inside the box
+                fontSize: "14px", // Set font size
+                color: "#333333", // Set text color
+                width: "400px", // Set width of the info box
+                boxShadow: "0px 4px 10px rgba(0, 0, 0, 0.1)", // Optional box shadow for effect
+              },
+              closeBoxURL: "", // Hide the default close button if desired
+            }}
+          >
+            <div>
+              <div className="restaurant-header">
+                <h4 className="font-bold text-xl">{hoveredRestaurant.name}</h4>
+              </div>
+              <div className="flex py-2">
+                <StarRating
+                  initialRating={hoveredRestaurant.rating}
+                  isReadOnly={true}
+                />
+                <h4 className="text-xl px-2">
+                  {(hoveredRestaurant.rating ?? 0).toFixed(1)}
+                </h4>
+              </div>
+              <div className="flex mb-2">
+                <h4 className=" mr-2">Location: </h4>
+                <p className="mx-0">{hoveredRestaurant.locationName}</p>
+              </div>
+              <div className="flex">
+                <h4 className="mr-2 whitespace-nowrap">Excluded-Allergens:</h4>
+                <p className="mx-0">{hoveredRestaurant.allergen.join(", ")}</p>
+              </div>
+            </div>
+          </InfoBox>
+        )}
       </GoogleMap>
     </div>
   );
@@ -330,13 +392,12 @@ const PlacesAutocomplete = ({ setSelected, panTo }) => {
     clearSuggestions,
   } = usePlacesAutocomplete();
 
-  const handleSelect = async (address) => {
+  const handleSelect = async (address: string) => {
     setValue(address, false);
     clearSuggestions();
-
     const results = await getGeocode({ address });
     const { lat, lng } = await getLatLng(results[0]);
-    setSelected(lat, lng);
+    setSelected({ lat, lng });
     panTo({ lat, lng });
   };
 

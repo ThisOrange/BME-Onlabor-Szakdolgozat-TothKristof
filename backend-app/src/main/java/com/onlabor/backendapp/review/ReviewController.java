@@ -42,6 +42,12 @@ public class ReviewController {
         return "Review " + id + " removed!";
     }
 
+    @DeleteMapping("/restaurant/{id}")
+    public String deleteByRestaurant(@PathVariable Long id) {
+        reviewService.deleteReviews(id);
+        return "Review " + id + " removed!";
+    }
+
     @DeleteMapping("/all")
     public String deleteReview() {
         reviewService.deleteReviews();

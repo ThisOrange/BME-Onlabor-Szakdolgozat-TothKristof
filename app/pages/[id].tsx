@@ -1,7 +1,9 @@
 import { useEffect, useState } from "react";
-import CommentsList from "../src/components/comment/CommentList";
 import { useLoginContext } from "../src/components/LoginContext";
-import StarRating from "../src/components/comment/StarRating"; // Import the updated StarRating component
+import StarRating from "../src/components/StarRating/StarRating"; // Import the updated StarRating component
+import ReviewsList from "../src/components/review/ReviewList";
+import router from "next/router";
+import { FaArrowLeft } from "react-icons/fa";
 
 interface Props {
   id: string;
@@ -10,12 +12,13 @@ interface Props {
 const New = ({ id }: Props) => {
   const { isLoggedIn } = useLoginContext();
   const [restaurant, setRestaurant] = useState<Restaurant | null>(null);
-  const [comments, setComments] = useState<CommentData[]>([]);
-  const [commentText, setCommentText] = useState<string>("");
+  const [reviews, setReviews] = useState<ReviewData[]>([]);
+  const [reviewText, setReviewText] = useState<string>("");
   const [rating, setRating] = useState<number>(0);
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
   const [showForm, setShowForm] = useState<boolean>(true);
-  const [hasCommented, setHasCommented] = useState<boolean>(false);
+  const [hasReviewed, setHasReviewed] = useState<boolean>(false);
+  const [averageRating, setAverageRating] = useState<number>();
 
   const getRestaurant = async () => {
     try {
@@ -36,7 +39,7 @@ const New = ({ id }: Props) => {
     }
   };
 
-  const getComments = async () => {
+  const getReviews = async () => {
     try {
       const response = await fetch(
         `${process.env.NEXT_PUBLIC_API}/reviews/restaurant/${id}`,
@@ -47,14 +50,14 @@ const New = ({ id }: Props) => {
           },
         }
       );
-      const result: CommentData[] = await response.json();
-      setComments(result);
+      const result: ReviewData[] = await response.json();
+      setReviews(result);
       const userId = localStorage.getItem("userId");
       if (
         userId &&
-        result.some((comment) => comment.userId === parseInt(userId, 10))
+        result.some((review) => review.userId === parseInt(userId, 10))
       ) {
-        setHasCommented(true);
+        setHasReviewed(true);
         setShowForm(false); // Hide the form if the user has commented
       }
     } catch (error) {
@@ -63,24 +66,49 @@ const New = ({ id }: Props) => {
   };
 
   const calculateAverageRating = () => {
-    if (comments.length === 0) return 0;
-    const totalRating = comments.reduce(
-      (sum, comment) => sum + comment.rating,
-      0
-    );
-    const averageRating = totalRating / comments.length;
+    if (reviews.length === 0) return 0;
+    const totalRating = reviews.reduce((sum, review) => sum + review.rating, 0);
+    const averageRating = totalRating / reviews.length;
     return Math.round(averageRating * 10) / 10; // Round to the nearest tenth
+  };
+
+  const putRating = async () => {
+    try {
+      const response = await fetch(
+        `${process.env.NEXT_PUBLIC_API}/restaurants/rating?id=${id}`,
+        {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(averageRating),
+        }
+      );
+    } catch (error) {
+      console.error("An error occurred:", error);
+    }
   };
 
   useEffect(() => {
     getRestaurant();
-    getComments();
+    getReviews();
   }, [id]);
 
-  const handleCommentSubmit = async (event: React.FormEvent) => {
+  useEffect(() => {
+    const avgRating = calculateAverageRating();
+    setAverageRating(avgRating);
+  }, [reviews]);
+
+  useEffect(() => {
+    if (averageRating > 0) {
+      putRating(); // Only call putRating when averageRating is updated
+    }
+  }, [averageRating]);
+
+  const handleReviewSubmit = async (event: React.FormEvent) => {
     event.preventDefault();
 
-    if (commentText.trim() === "") return; // Do not submit if comment is empty
+    if (reviewText.trim() === "") return; // Do not submit if comment is empty
     setIsSubmitting(true);
 
     try {
@@ -93,15 +121,16 @@ const New = ({ id }: Props) => {
           restId: id,
           userId: localStorage.getItem("userId"),
           userName: localStorage.getItem("username"),
-          comment: commentText,
+          comment: reviewText,
           rating: rating, // Send the rating along with the comment
         }),
       });
       if (response.ok) {
-        setCommentText(""); // Clear the form after successful submission
+        putRating();
+        setReviewText(""); // Clear the form after successful submission
         setRating(1); // Reset the rating to default value
         setShowForm(false);
-        getComments(); // Refresh the comments list
+        getReviews(); // Refresh the comments list
       } else {
         console.error("Failed to post the comment");
       }
@@ -112,18 +141,24 @@ const New = ({ id }: Props) => {
     }
   };
 
-  const averageRating = calculateAverageRating();
-
   return (
     <div className="flex flex-row justify-center text-slate-800">
       <div className="restaurant-container bg-white p-4 rounded-md shadow-lg w-full max-w-3xl">
-        {restaurant && <h1>{restaurant.name}</h1>}
+        <div className="flex justify-between items-center w-full relative">
+          {restaurant && <h1>{restaurant.name}</h1>}
+          <button
+            onClick={() => router.back()}
+            className=" my-2 px-2 py-1 rounded-md outline-slate-800 bg-slate-800 text-2xl font-bold cursor-pointer flex items-center absolute right-2 top-0"
+          >
+            <FaArrowLeft className="mx-2 text-white" />
+          </button>
+        </div>
         {restaurant && <h2>{restaurant.locationName}</h2>}
 
         {/* Display the average rating */}
         <div>
-          <h3>
-            Rating: {averageRating}
+          <h3 className="font-semibold">
+            Rating: {(averageRating ?? 0).toFixed(1)}
             <StarRating
               initialRating={averageRating || 0}
               isReadOnly={true} // Make the StarRating component read-only
@@ -132,18 +167,18 @@ const New = ({ id }: Props) => {
         </div>
 
         {restaurant && (
-          <h3>
-            No allergens:{" "}
+          <div className="flex items-center">
+            <h3 className=" mt-4 mr-2 p-0">No allergens: </h3>
             {restaurant.allergen.map((allergen, index) => (
-              <span key={index}>
+              <p className="mx-0 mt-4 mr-1 text-lg" key={index}>
                 {allergen}
                 {index < restaurant.allergen.length - 1 && ","}{" "}
-              </span>
+              </p>
             ))}
-          </h3>
+          </div>
         )}
 
-        <h3>Menu:</h3>
+        <h3 className="mt-2 mb-2">Menu:</h3>
         {restaurant && (
           <p
             dangerouslySetInnerHTML={{
@@ -152,59 +187,59 @@ const New = ({ id }: Props) => {
           ></p>
         )}
 
-        <h3>Comments:</h3>
-        {showForm && isLoggedIn && !hasCommented && (
-          <div className="w-full">
-            <h3>Leave a comment:</h3>
-            <div className="mt-4 px-10 w-full">
-              <form onSubmit={handleCommentSubmit} className="space-y-4">
-                {/* Comment Textarea */}
-                <div className="flex flex-col w-full">
-                  <label htmlFor="comment" className="font-medium mb-2">
-                    Comment:
-                  </label>
-                  <textarea
-                    id="comment"
-                    value={commentText}
-                    onChange={(e) => setCommentText(e.target.value)}
-                    required
-                    rows={4}
-                    className="w-full max-w-3xl p-2 border rounded resize-none"
-                    style={{
-                      width: "100%", // Take up 100% of the parent container
-                      height: "auto", // Height will adjust based on rows
-                      boxSizing: "border-box", // Ensure padding and borders are part of the width calculation
-                    }}
-                  />
-                </div>
+        <h3>Reviews:</h3>
+        {showForm &&
+          isLoggedIn &&
+          !hasReviewed &&
+          localStorage.getItem("role") !== "RESTOWNER" && (
+            <div className="w-full">
+              <h3>Leave a review:</h3>
+              <div className="mt-4 px-10 w-full">
+                <form onSubmit={handleReviewSubmit} className="space-y-4">
+                  <div className="flex flex-col w-full">
+                    <label htmlFor="review" className="font-medium mb-2">
+                      Review:
+                    </label>
+                    <textarea
+                      id="review"
+                      value={reviewText}
+                      onChange={(e) => setReviewText(e.target.value)}
+                      required
+                      rows={4}
+                      className="w-full max-w-3xl p-2 border rounded resize-none"
+                      style={{
+                        width: "100%",
+                        height: "auto",
+                        boxSizing: "border-box",
+                      }}
+                    />
+                  </div>
 
-                {/* Star Rating */}
-                <div className="flex flex-col w-full">
-                  <label htmlFor="rating" className="font-medium mb-2">
-                    Rating:
-                  </label>
-                  <StarRating
-                    initialRating={rating}
-                    setRating={setRating}
-                    isReadOnly={false}
-                  />
-                </div>
+                  <div className="flex flex-col w-full">
+                    <label htmlFor="rating" className="font-medium mb-2">
+                      Rating:
+                    </label>
+                    <StarRating
+                      initialRating={rating}
+                      setRating={setRating}
+                      isReadOnly={false}
+                    />
+                  </div>
 
-                {/* Submit Button */}
-                <button
-                  type="submit"
-                  disabled={isSubmitting}
-                  className="mt-4 bg-blue-500 text-white p-2 rounded w-full"
-                >
-                  {isSubmitting ? "Submitting..." : "Submit Comment"}
-                </button>
-              </form>
+                  <button
+                    type="submit"
+                    disabled={isSubmitting}
+                    className="mt-4 bg-blue-500 text-white p-2 rounded w-full"
+                  >
+                    {isSubmitting ? "Submitting..." : "Submit Review"}
+                  </button>
+                </form>
+              </div>
             </div>
-          </div>
-        )}
+          )}
         <div className="mt-4 px-10 w-full">
-          {comments.length > 0 ? (
-            <CommentsList comments={comments} />
+          {reviews.length > 0 ? (
+            <ReviewsList reviews={reviews} isProfile={false} />
           ) : (
             <p>There are no reviews yet!</p>
           )}

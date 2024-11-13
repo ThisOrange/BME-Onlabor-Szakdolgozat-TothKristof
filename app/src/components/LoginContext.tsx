@@ -1,3 +1,4 @@
+import { jwtDecode } from "jwt-decode";
 import React, {
   createContext,
   useState,
@@ -25,34 +26,58 @@ interface LoginProviderProps {
   children: ReactNode;
 }
 
+interface JwtPayload {
+  exp: string;
+}
+
 export const LoginProvider = ({ children }: LoginProviderProps) => {
-  // Initialize isLoggedIn as undefined initially
   const [isLoggedIn, setIsLoggedIn] = useState<boolean | undefined>(undefined);
 
+  const checkTokenExpiration = () => {
+    const token = localStorage.getItem("jwtToken");
+    if (token) {
+      try {
+        const decodedToken = jwtDecode<JwtPayload>(token);
+        const isExpired = parseInt(decodedToken.exp, 10) * 1000 < Date.now();
+        if (isExpired) {
+          setIsLoggedIn(false);
+          localStorage.removeItem("jwtToken");
+        } else {
+          setIsLoggedIn(true);
+        }
+      } catch (error) {
+        console.error("Invalid token format", error);
+        setIsLoggedIn(false);
+      }
+    } else {
+      setIsLoggedIn(false);
+    }
+  };
+
   useEffect(() => {
-    // This will only run on the client side (after the component mounts)
     if (typeof window !== "undefined") {
+      checkTokenExpiration();
       const storedValue = localStorage.getItem("isLoggedIn");
       if (storedValue !== null) {
-        setIsLoggedIn(JSON.parse(storedValue)); // Update state based on localStorage
-      } else {
-        setIsLoggedIn(false); // Set to false if not found in localStorage
+        setIsLoggedIn(JSON.parse(storedValue));
       }
     }
-  }, []); // Runs only once when the component mounts
+  }, []);
 
-  // This effect updates localStorage when the `isLoggedIn` state changes
   useEffect(() => {
     if (isLoggedIn !== undefined) {
-      if (typeof window !== "undefined") {
-        localStorage.setItem("isLoggedIn", JSON.stringify(isLoggedIn));
-      }
+      localStorage.setItem("isLoggedIn", JSON.stringify(isLoggedIn));
     }
-  }, [isLoggedIn]); // Only run when isLoggedIn changes
+  }, [isLoggedIn]);
 
-  // If `isLoggedIn` is undefined, show a loading state until the check is complete
+  // Re-run token expiration check every minute
+  useEffect(() => {
+    const interval = setInterval(checkTokenExpiration, 60000);
+    return () => clearInterval(interval);
+  }, []);
+
   if (isLoggedIn === undefined) {
-    return <div>Loading...</div>; // Or any other loading UI
+    return <div>Loading...</div>;
   }
 
   return (

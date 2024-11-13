@@ -39,4 +39,8 @@ public class AppUserService {
     public AppUser getAppUser(Long id) {
         return appUserRepository.findById(id).orElse(null);
     }
+
+    public AppUser getAppUser(String email) {
+        return appUserRepository.findByEmail(email).orElse(null);
+    }
 }

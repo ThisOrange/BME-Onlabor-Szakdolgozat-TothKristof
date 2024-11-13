@@ -1,7 +1,13 @@
 package com.onlabor.backendapp.restaurant;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.web.bind.annotation.*;
+
+import com.onlabor.backendapp.user.AppUser;
+import com.onlabor.backendapp.user.AppUserService;
 
 import java.util.List;
 
@@ -10,6 +16,8 @@ import java.util.List;
 public class RestaurantController {
     @Autowired
     private RestaurantService restaurantService;
+    @Autowired
+    private AppUserService appUserService;
 
     @GetMapping("/{id}")
     public Restaurant getRestaurant(@PathVariable Long id) {
@@ -22,9 +30,33 @@ public class RestaurantController {
     }
 
     @PostMapping
-    public Restaurant addRestaurant(@RequestBody Restaurant restaurant) {
-        System.out.println("Went through");
+    public Restaurant addRestaurant(@RequestBody RestaurantDTO restaurantDTO) {
+        // Extract the userId from the RestaurantDTO
+        Long userId = restaurantDTO.getUserId(); // Assuming RestaurantDTO has userId
+
+        System.out.println("User ID (Post): " + userId);
+
+        // Retrieve the AppUser from the database by userId
+        AppUser user = appUserService.getAppUser(userId);
+
+        // Create a new Restaurant object and set properties from the RestaurantDTO
+        Restaurant restaurant = new Restaurant();
+        restaurant.setName(restaurantDTO.getName());
+        restaurant.setLocationName(restaurantDTO.getLocationName());
+        restaurant.setLocation(restaurantDTO.getLocation());
+        restaurant.setAllergen(restaurantDTO.getAllergen());
+        restaurant.setMenu(restaurantDTO.getMenu());
+
+        // Set the AppUser in the Restaurant object
+        restaurant.setUser(user);
+
+        // Save the restaurant and return the result
         return restaurantService.saveRestaurant(restaurant);
+    }
+
+    @PutMapping("/rating")
+    public Restaurant updateRestaurant(@RequestParam Long id, @RequestBody Float rating) {
+        return restaurantService.updateRating(id, rating);
     }
 
     @PutMapping("/{id}")

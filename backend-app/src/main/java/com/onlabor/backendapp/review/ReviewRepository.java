@@ -8,4 +8,6 @@ public interface ReviewRepository extends JpaRepository<Review, Long> {
     List<Review> findByRestId(Long restaurantId);
 
     List<Review> findByUserId(Long userId);
+
+    void deleteByRestId(Long restaurantId);
 }

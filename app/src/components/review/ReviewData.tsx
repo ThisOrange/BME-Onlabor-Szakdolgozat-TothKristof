@@ -1,6 +1,6 @@
-interface CommentData {
+interface ReviewData {
   id: number;
-  userId: number;
+  restId: number;
   userName: string;
   rating: number;
   comment: string;
