@@ -29,6 +29,11 @@ public class RestaurantController {
         return restaurantService.getAllRestaurants();
     }
 
+    @GetMapping("/best")
+    public List<Restaurant> getBestRestaurants() {
+        return restaurantService.getBestRestaurants();
+    }
+
     @PostMapping
     public Restaurant addRestaurant(@RequestBody RestaurantDTO restaurantDTO) {
         // Extract the userId from the RestaurantDTO
@@ -67,6 +72,12 @@ public class RestaurantController {
     @DeleteMapping("/{id}")
     public String deleteRestaurant(@PathVariable Long id) {
         restaurantService.deleteRestaurant(id);
+        return "Restaurant " + id + " removed!";
+    }
+
+    @DeleteMapping("/all/{id}")
+    public String deleteRestaurants(@PathVariable Long id) {
+        restaurantService.deleteRestaurantsByUserId(id);
         return "Restaurant " + id + " removed!";
     }
 

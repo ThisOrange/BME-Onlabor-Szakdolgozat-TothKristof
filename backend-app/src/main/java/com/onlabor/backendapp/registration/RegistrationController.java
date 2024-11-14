@@ -1,5 +1,6 @@
 package com.onlabor.backendapp.registration;
 
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -16,13 +17,7 @@ public class RegistrationController {
     private RegistrationService registrationService;
 
     @PostMapping
-    public String register(@RequestBody RegistrationRequest request) {
+    public ResponseEntity<String> register(@RequestBody RegistrationRequest request) {
         return registrationService.register(request);
-    }
-
-    @DeleteMapping
-    public String delete(@RequestBody RegistrationRequest request) {
-        registrationService.delete(request);
-        return "Deleted";
     }
 }

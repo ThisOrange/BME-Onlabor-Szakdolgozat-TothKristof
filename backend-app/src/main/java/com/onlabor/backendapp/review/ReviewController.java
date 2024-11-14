@@ -36,16 +36,22 @@ public class ReviewController {
         return reviewService.saveReview(review);
     }
 
-    @DeleteMapping
-    public String deleteReview(@RequestBody Long id) {
+    @DeleteMapping("/{id}")
+    public String deleteReview(@PathVariable Long id) {
         reviewService.deleteReview(id);
         return "Review " + id + " removed!";
     }
 
     @DeleteMapping("/restaurant/{id}")
     public String deleteByRestaurant(@PathVariable Long id) {
-        reviewService.deleteReviews(id);
-        return "Review " + id + " removed!";
+        reviewService.deleteReviewsByRestId(id);
+        return "Reviews of " + id + " removed!";
+    }
+
+    @DeleteMapping("/user/{id}")
+    public String deleteByUser(@PathVariable Long id) {
+        reviewService.deleteReviewsByUserId(id);
+        return "Reviews of " + id + " removed!";
     }
 
     @DeleteMapping("/all")

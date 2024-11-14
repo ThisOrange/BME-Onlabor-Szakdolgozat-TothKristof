@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useForm } from "react-hook-form";
-import router, { useRouter } from "next/router";
+import router from "next/router";
 import { jwtDecode } from "jwt-decode";
 import { useLoginContext } from "../src/components/LoginContext";
 
@@ -30,15 +30,21 @@ const Login = () => {
   }
 
   const onSubmit = async () => {
+    const error1 = document.getElementById("missingEmail");
+    if (error1 != null) error1.hidden = true;
+    const error2 = document.getElementById("wrongEmail");
+    if (error2 != null) error2.hidden = true;
+    const error3 = document.getElementById("missingPassword");
+    if (error3 != null) error3.hidden = true;
+    const error4 = document.getElementById("wrongPassword");
+    if (error4 != null) error4.hidden = true;
     if (!Email || !Password) {
       // Show error messages if email or password are empty
       if (!Email) {
-        const error = document.getElementById("errorEmail");
-        if (error != null) error.hidden = false;
+        if (error1 != null) error1.hidden = false;
       }
       if (!Password) {
-        const error = document.getElementById("errorPassword");
-        if (error != null) error.hidden = false;
+        if (error3 != null) error3.hidden = false;
       }
       return;
     }
@@ -88,12 +94,22 @@ const Login = () => {
           localStorage.getItem("role")
         );
       } else {
-        // If the login failed, log the response as text for debugging
-        const errorText = await response.text();
-        console.error("Login failed:", errorText);
+        // Handle specific error cases based on the response status
+        const errorText = await response.text(); // Retrieve error message from the response
+        if (response.status === 404) {
+          const error = document.getElementById("wrongEmail");
+          if (error != null) error.hidden = false;
+        } else if (response.status === 401) {
+          const error = document.getElementById("wrongPassword");
+          if (error != null) error.hidden = false;
+        } else {
+          console.error("Login failed:", errorText);
+          alert("Login failed. Please try again.");
+        }
       }
     } catch (error) {
       console.error("An error occurred:", error);
+      alert("An error occurred. Please try again later.");
     }
   };
 
@@ -117,27 +133,42 @@ const Login = () => {
               ></input>
             </label>
             <label
-              id="errorEmail"
+              id="missingEmail"
               className=" text-red-500 font-bold"
               hidden={true}
             >
               Missing Email!
+            </label>
+            <label
+              id="wrongEmail"
+              className=" text-red-500 font-bold"
+              hidden={true}
+            >
+              User not Found!
             </label>
 
             <label className=" flex flex-col py-1 text-lg font-bold">
               Password:
               <input
                 id="Password"
+                type="password"
                 className=" my-2 w-100 px-2 py-1 rounded-md outline-emerald-400"
                 onChange={passwordChange}
               ></input>
             </label>
             <label
-              id="errorPassword"
+              id="missingPassword"
               className=" text-red-500 font-bold"
               hidden={true}
             >
               Missing Password!
+            </label>
+            <label
+              id="wrongPassword"
+              className=" text-red-500 font-bold"
+              hidden={true}
+            >
+              Wrong Password!
             </label>
             <div>
               <label id="errorPassword" className="">

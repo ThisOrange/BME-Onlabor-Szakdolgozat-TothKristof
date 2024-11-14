@@ -12,6 +12,7 @@ const ReviewsList: React.FC<ReviewsListProps> = ({ reviews, isProfile }) => (
       <Review
         key={review.id}
         restId={review.restId}
+        revId={review.id}
         user={review.userName}
         rating={review.rating}
         comment={review.comment}

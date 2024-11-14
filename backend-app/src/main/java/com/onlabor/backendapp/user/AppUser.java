@@ -96,4 +96,11 @@ public class AppUser implements UserDetails {
         return enabled;
     }
 
+    public Restaurant getRestaurant(Long restid) {
+        return this.restaurants.stream()
+                .filter(restaurant -> restaurant.getId().equals(restid))
+                .findFirst()
+                .orElse(null);
+    }
+
 }

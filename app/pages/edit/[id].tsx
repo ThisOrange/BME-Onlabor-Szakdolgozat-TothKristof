@@ -14,24 +14,75 @@ const Edit = () => {
   const [Menu, setMenu] = useState<string>("");
   const [Allergens, setAllergens] = useState<string[]>([]);
 
-  useEffect(() => {
-    if (!id) return;
-    const fetchRestaurantData = async () => {
-      try {
-        const response = await fetch(
-          `${process.env.NEXT_PUBLIC_API}/restaurants/${id}`
-        );
-        const restaurantData = await response.json();
-        setName(restaurantData.name);
-        setLocation(restaurantData.locationName);
-        setMenu(restaurantData.menu);
-        setAllergens(restaurantData.allergen);
-      } catch (error) {
-        console.error("Error fetching restaurant data:", error);
+  const validateRestaurant = async () => {
+    try {
+      const userId = localStorage.getItem("userId");
+      if (!userId || !id) {
+        console.error("Invalid userId or restaurantId");
+        return;
       }
-    };
-    if (id !== "new") {
+
+      const response = await fetch(
+        `${process.env.NEXT_PUBLIC_API}/api/user/validate/${userId}/${id}`,
+        {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${localStorage.getItem("jwtToken")}`,
+          },
+        }
+      );
+
+      if (!response.ok) {
+        throw new Error("Failed to validate restaurant");
+      }
+
+      // Check if the response body is empty
+      const text = await response.text();
+      if (!text) {
+        console.log("Restaurant not found");
+        router.back();
+        return null; // Return null if no restaurant is found
+      }
+
+      // Parse the response if it's not empty
+      const restaurant = JSON.parse(text);
+      console.log(restaurant); // Handle the restaurant object as needed
+      return restaurant;
+    } catch (error) {
+      console.error("An error occurred:", error);
+    }
+  };
+
+  useEffect(() => {
+    if (id && id !== "new") {
+      // Ensure we have the valid id before fetching data
+      const fetchRestaurantData = async () => {
+        try {
+          const response = await fetch(
+            `${process.env.NEXT_PUBLIC_API}/restaurants/${id}`
+          );
+          const restaurantData = await response.json();
+          setName(restaurantData.name);
+          setLocation(restaurantData.locationName);
+          setMenu(restaurantData.menu);
+          setAllergens(restaurantData.allergen);
+        } catch (error) {
+          console.error("Error fetching restaurant data:", error);
+        }
+      };
+
       fetchRestaurantData();
+    } else {
+      // Handle the case where `id` is "new" or invalid
+      console.log("No valid restaurant id, skip fetching data.");
+    }
+  }, [id]);
+
+  // Call validateRestaurant only if `id` exists
+  useEffect(() => {
+    validateRestaurant();
+    if (id) {
     }
   }, [id]);
 
@@ -59,7 +110,7 @@ const Edit = () => {
         }
       ).then((res) => res.json());
 
-      router.push("/profile");
+      router.back();
     }
 
     if (!Name) {
@@ -254,8 +305,8 @@ const Edit = () => {
               </label>
               <input
                 type="submit"
-                id="Create"
-                value={id === "new" ? "Create" : "Update"}
+                id="Edit"
+                value={"Submit"}
                 className="my-10 h-12 px-2 py-1 rounded-md outline-emerald-400 bg-emerald-400 text-2xl font-bold cursor-pointer"
               />
             </div>

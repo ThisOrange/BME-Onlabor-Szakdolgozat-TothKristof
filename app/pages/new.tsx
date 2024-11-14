@@ -47,7 +47,7 @@ const New = () => {
           menu: Menu,
         }),
       }).then((res) => res.json());
-      router.push("/");
+      router.back();
     }
 
     if (!Name) {

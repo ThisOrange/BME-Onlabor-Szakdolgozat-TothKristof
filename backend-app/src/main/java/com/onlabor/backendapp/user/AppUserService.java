@@ -23,17 +23,16 @@ public class AppUserService {
 
         appUserRepository.save(appUser);
 
-        // TODO: Send token!
-
         return "Works";
     }
 
-    public void deleteUser(String email) {
-        boolean userExists = appUserRepository.findByEmail(email).isPresent();
+    public String deleteUser(Long id) {
+        boolean userExists = appUserRepository.findById(id).isPresent();
         if (!userExists) {
             throw new IllegalStateException("Selected user doesn't exist!");
         }
-        appUserRepository.delete(appUserRepository.findByEmail(email).get());
+        appUserRepository.delete(appUserRepository.findById(id).get());
+        return "Deleted!";
     }
 
     public AppUser getAppUser(Long id) {

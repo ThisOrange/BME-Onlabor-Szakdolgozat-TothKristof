@@ -10,4 +10,6 @@ public interface ReviewRepository extends JpaRepository<Review, Long> {
     List<Review> findByUserId(Long userId);
 
     void deleteByRestId(Long restaurantId);
+
+    void deleteByUserId(Long userId);
 }

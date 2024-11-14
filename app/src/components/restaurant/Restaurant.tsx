@@ -8,6 +8,8 @@ interface CommentProps {
   rating: number;
   id: number;
   location: string;
+  allergens: string[];
+  isBest: boolean;
 }
 
 const Restaurant: React.FC<CommentProps> = ({
@@ -15,12 +17,13 @@ const Restaurant: React.FC<CommentProps> = ({
   rating,
   id,
   location,
+  allergens,
+  isBest,
 }) => {
   const [deleted, setDeleted] = useState(false); // State to track if the restaurant is deleted
 
   const handleNameClick = () => {
-    router.query.id = id.toString();
-    router.push({ pathname: `/${id.toString()}` });
+    router.push(`/restaurant/${id}`);
   };
 
   const handleDeleteClick = async () => {
@@ -37,6 +40,7 @@ const Restaurant: React.FC<CommentProps> = ({
             method: "DELETE",
             headers: {
               "Content-Type": "application/json",
+              Authorization: `Bearer ${localStorage.getItem("jwtToken")}`,
             },
           }
         );
@@ -52,6 +56,7 @@ const Restaurant: React.FC<CommentProps> = ({
             method: "DELETE",
             headers: {
               "Content-Type": "application/json",
+              Authorization: `Bearer ${localStorage.getItem("jwtToken")}`,
             },
           }
         );
@@ -81,7 +86,7 @@ const Restaurant: React.FC<CommentProps> = ({
         <div className="restaurant-header">
           <h3
             onClick={handleNameClick}
-            className=" max-w-xs mr-0 pr-0 text-lg cursor-pointer font-bold"
+            className=" max-w-xs mr-0 pr-0 text-lg cursor-pointer font-bold "
           >
             {restaurant}
           </h3>
@@ -90,46 +95,55 @@ const Restaurant: React.FC<CommentProps> = ({
             {(rating ?? 0).toFixed(1)}
           </h4>
         </div>
-        <div className="flex">
-          <p className="mr-2 font-semibold">Id: </p>
-          <p className="ml-0 ">{id}</p>
-        </div>
+        {!isBest ? (
+          <div className="flex">
+            <p className="mr-2 font-semibold">Id: </p>
+            <p className="ml-0 ">{id}</p>
+          </div>
+        ) : null}
         <div className="flex">
           <p className="mr-2 font-semibold">Location: </p>
           <p className="ml-0 ">{location}</p>
         </div>
+        {isBest ? (
+          <div className="flex">
+            <p className="mr-2 font-semibold">Excluded-Allergens: </p>
+            <p className="ml-0 ">{allergens.join(", ")}</p>
+          </div>
+        ) : null}
       </div>
+      {!isBest ? (
+        <div className="flex justify-center items-center">
+          <button
+            onClick={handleEditClick}
+            style={{
+              backgroundColor: "blue",
+              color: "white",
+              padding: "8px 12px",
+              border: "none",
+              borderRadius: "5px",
+              cursor: "pointer",
+              marginRight: "8px",
+            }}
+          >
+            <FaEdit style={{ color: "white" }} />
+          </button>
 
-      <div className="flex justify-center items-center">
-        <button
-          onClick={handleEditClick}
-          style={{
-            backgroundColor: "blue",
-            color: "white",
-            padding: "8px 12px",
-            border: "none",
-            borderRadius: "5px",
-            cursor: "pointer",
-            marginRight: "8px",
-          }}
-        >
-          <FaEdit style={{ color: "white" }} />
-        </button>
-
-        <button
-          onClick={handleDeleteClick}
-          style={{
-            backgroundColor: "red",
-            color: "white",
-            padding: "8px 12px",
-            border: "none",
-            borderRadius: "5px",
-            cursor: "pointer",
-          }}
-        >
-          <FaTrash style={{ color: "white" }} />
-        </button>
-      </div>
+          <button
+            onClick={handleDeleteClick}
+            style={{
+              backgroundColor: "red",
+              color: "white",
+              padding: "8px 12px",
+              border: "none",
+              borderRadius: "5px",
+              cursor: "pointer",
+            }}
+          >
+            <FaTrash style={{ color: "white" }} />
+          </button>
+        </div>
+      ) : null}
     </div>
   );
 };

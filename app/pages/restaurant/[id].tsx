@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
-import { useLoginContext } from "../src/components/LoginContext";
-import StarRating from "../src/components/StarRating/StarRating"; // Import the updated StarRating component
-import ReviewsList from "../src/components/review/ReviewList";
+import { useLoginContext } from "../../src/components/LoginContext";
+import StarRating from "../../src/components/StarRating/StarRating"; // Import the updated StarRating component
+import ReviewsList from "../../src/components/review/ReviewList";
 import router from "next/router";
 import { FaArrowLeft } from "react-icons/fa";
 

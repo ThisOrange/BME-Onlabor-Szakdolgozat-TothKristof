@@ -157,7 +157,7 @@ function Map() {
 
     const markerClick = async (id: number) => {
       router.query.id = id.toString();
-      router.push({ pathname: `/${id.toString()}` });
+      router.push({ pathname: `/restaurant/${id.toString()}` });
     };
 
     getRestaurants()

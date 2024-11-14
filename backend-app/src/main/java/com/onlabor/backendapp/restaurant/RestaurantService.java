@@ -1,19 +1,30 @@
 package com.onlabor.backendapp.restaurant;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
+
+import com.onlabor.backendapp.user.AppUser;
+import com.onlabor.backendapp.user.AppUserRepository;
 
 import jakarta.transaction.Transactional;
 
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class RestaurantService {
     @Autowired
     private RestaurantRepository restaurantRepository;
+    @Autowired
+    private AppUserRepository appUserRepository;
 
     public List<Restaurant> getAllRestaurants() {
         return restaurantRepository.findAll();
+    }
+
+    public List<Restaurant> getBestRestaurants() {
+        return restaurantRepository.findAllOrderByRatingAscNullsLast();
     }
 
     public Restaurant saveRestaurant(Restaurant restaurant) {
@@ -50,5 +61,15 @@ public class RestaurantService {
     public void deleteRestaurant(Long id) {
         if (restaurantRepository.findById(id).orElse(null) != null)
             restaurantRepository.deleteById(id);
+    }
+
+    @Transactional
+    public void deleteRestaurantsByUserId(Long userId) {
+        Optional<AppUser> user = appUserRepository.findById(userId);
+        if (user.isPresent()) {
+            restaurantRepository.deleteByUser(user.get());
+        } else {
+            throw new IllegalArgumentException("User not found with ID: " + userId);
+        }
     }
 }

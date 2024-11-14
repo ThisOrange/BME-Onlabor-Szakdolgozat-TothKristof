@@ -25,6 +25,77 @@ const Profile = () => {
     setIsLoggedIn(false);
     router.push("/"); // Or any other route like "/"
   };
+  const handleDeleteProfile = async () => {
+    const confirmDelete = window.confirm(
+      "Are you sure you want to delete this restaurant?"
+    );
+    if (confirmDelete) {
+      try {
+        // Deleting the user profile
+
+        // If the role is 'USER', delete associated reviews
+        if (localStorage.getItem("role") === "USER") {
+          const reviewResponse = await fetch(
+            `${process.env.NEXT_PUBLIC_API}/reviews/user/${localStorage.getItem(
+              "userId"
+            )}`,
+            {
+              method: "DELETE",
+              headers: {
+                "Content-Type": "application/json",
+                Authorization: `Bearer ${localStorage.getItem("jwtToken")}`,
+              },
+            }
+          );
+          if (!reviewResponse.ok) {
+            throw new Error("Failed to delete user reviews");
+          }
+        }
+
+        // If the role is 'RESTOWNER', delete associated restaurants
+        if (
+          localStorage.getItem("role") === "RESTOWNER" &&
+          restaurants.length !== 0
+        ) {
+          throw new Error("You still have active restaurants!");
+        }
+
+        const response = await fetch(
+          `${process.env.NEXT_PUBLIC_API}/api/user/${localStorage.getItem(
+            "userId"
+          )}`,
+          {
+            method: "DELETE",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${localStorage.getItem("jwtToken")}`,
+            },
+          }
+        );
+
+        if (!response.ok) {
+          throw new Error("Failed to delete user profile");
+        }
+
+        // Clear localStorage and reset application state
+        localStorage.removeItem("username");
+        localStorage.removeItem("email");
+        localStorage.removeItem("role");
+        localStorage.removeItem("jwtToken");
+
+        // Optionally, you can also reset any other application state here (e.g., isLoggedIn).
+
+        setIsLoggedIn(false); // Set the login state to false (logout)
+        router.push("/"); // Redirect to the home page or login page
+      } catch (error) {
+        console.error("Error deleting profile:", error.message);
+        // Optionally display an error message to the user
+        alert(
+          "An error occurred while deleting your profile: " + error.message
+        );
+      }
+    }
+  };
 
   const getReviews = async () => {
     try {
@@ -36,6 +107,7 @@ const Profile = () => {
           method: "GET",
           headers: {
             "Content-Type": "application/json",
+            Authorization: `Bearer ${localStorage.getItem("jwtToken")}`,
           },
         }
       );
@@ -55,6 +127,7 @@ const Profile = () => {
           method: "GET",
           headers: {
             "Content-Type": "application/json",
+            Authorization: `Bearer ${localStorage.getItem("jwtToken")}`,
           },
         }
       );
@@ -89,11 +162,17 @@ const Profile = () => {
             Email: {localStorage.getItem("email")}
           </label>
           <label className="block text-xl font-bold">Role: {role}</label>
+          <label
+            onClick={handleDeleteProfile}
+            className="block text-base text-red-500 font-bold cursor-pointer"
+          >
+            Delete profile!
+          </label>
         </div>
         <div className="mt-4 px-10 w-full">
           <button
             onClick={handleLogout}
-            className="px-4 py-2 bg-red-500 text-white rounded-md font-bold hover:bg-red-600"
+            className="px-4 py-2 bg-blue-500 text-white rounded-md font-bold hover:bg-red-600"
           >
             Logout
           </button>
@@ -103,12 +182,15 @@ const Profile = () => {
         </h2>
         <div className="mt-4 px-10 w-full">
           {role === "RESTOWNER" ? (
-            // You would render the list of restaurants here if role is "RESTOWNER"
-            <RestaurantList restaurants={restaurants} /> // Replace with actual restaurant list
+            restaurants.length > 0 ? (
+              <RestaurantList restaurants={restaurants} isBest={false} />
+            ) : (
+              <p>You don't have a registered restaurant yet!</p>
+            )
           ) : reviews.length > 0 ? (
             <ReviewsList reviews={reviews} isProfile={true} />
           ) : (
-            <p>There are no reviews yet!</p>
+            <p>You don't have any reviews yet!</p>
           )}
         </div>
       </div>

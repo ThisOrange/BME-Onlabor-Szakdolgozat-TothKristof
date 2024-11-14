@@ -2,6 +2,7 @@ package com.onlabor.backendapp.user;
 
 import java.util.List;
 
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -32,5 +33,15 @@ public class AppUserController {
     @GetMapping(path = "/restaurants")
     public List<Restaurant> getRestaurants(@RequestParam Long id) {
         return appUserService.getAppUser(id).getRestaurants();
+    }
+
+    @DeleteMapping("/{id}")
+    public String deleteProfile(@PathVariable Long id) {
+        return appUserService.deleteUser(id);
+    }
+
+    @GetMapping("/validate/{id}/{restId}")
+    public Restaurant validateRestaurant(@PathVariable Long id, @PathVariable Long restId) {
+        return appUserService.getAppUser(id).getRestaurant(restId);
     }
 }

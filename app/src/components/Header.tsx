@@ -48,6 +48,12 @@ const Header = () => {
             onClick={() => router.push("/about")}
           />
           <input
+            className="mx-1 my-1 w-36 h-14 text-white text-center text-xl bg-slate-800 cursor-pointer outline-emerald-400 hover:outline"
+            type="button"
+            value="Best"
+            onClick={() => router.push("/top")}
+          />
+          <input
             id="AddRestaurant"
             className="mx-1 my-1 w-36 h-14 text-white text-center text-xl bg-slate-800 cursor-pointer outline-emerald-400 hover:outline"
             type="button"
